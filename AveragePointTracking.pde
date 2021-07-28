@@ -13,10 +13,23 @@ KinectTracker tracker;
 Kinect kinect;
 
 
+import oscP5.*;
+import netP5.*;
+
+
+OscP5 oscP5;
+
+/* a NetAddress contains the ip address and port number of a remote location in the network. */
+NetAddress myBroadcastLocation; 
+
+
 void setup() {
   size(640, 520);
   kinect = new Kinect(this);
   tracker = new KinectTracker();
+  
+  oscP5 = new OscP5(this,12000);
+  myBroadcastLocation = new NetAddress("127.0.0.1",32000);
 }
 
 void draw() {
@@ -38,6 +51,13 @@ void draw() {
   fill(100, 250, 50, 200);
   noStroke();
   ellipse(v2.x, v2.y, 20, 20);
+  
+  OscMessage myOscMessage = new OscMessage("/kinect_pos");
+  
+  /* add a value (an integer) to the OscMessage */
+  myOscMessage.add(new float[]{v2.x / width, v2.y / height});
+  
+  oscP5.send(myOscMessage, myBroadcastLocation);
 
   // Display some info
   int t = tracker.getThreshold();
