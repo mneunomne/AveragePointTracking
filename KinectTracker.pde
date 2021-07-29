@@ -8,7 +8,7 @@
 class KinectTracker {
 
   // Depth threshold
-  int threshold = 955;
+  int threshold = 990;
 
   // Raw location
   PVector loc;
@@ -53,7 +53,7 @@ class KinectTracker {
         int rawDepth = depth[offset];
 
         // Testing against threshold
-        if (rawDepth < threshold) {
+        if (rawDepth < threshold && x > minKW && x < maxKW && y > minKH && y < maxKH) {
           sumX += x;
           sumY += y;
           count++;
@@ -61,13 +61,15 @@ class KinectTracker {
       }
     }
     // As long as we found something
-    if (count != 0) {
+    if (count > 10) {
       loc = new PVector(sumX/count, sumY/count);
+    } else {
+      loc = new PVector(kinect.width/2, kinect.height/2);
     }
 
     // Interpolating the location, doing it arbitrarily for now
-    lerpedLoc.x = PApplet.lerp(lerpedLoc.x, loc.x, 0.3f);
-    lerpedLoc.y = PApplet.lerp(lerpedLoc.y, loc.y, 0.3f);
+    lerpedLoc.x = PApplet.lerp(lerpedLoc.x, loc.x, 0.075f);
+    lerpedLoc.y = PApplet.lerp(lerpedLoc.y, loc.y, 0.075f);
   }
 
   PVector getLerpedPos() {

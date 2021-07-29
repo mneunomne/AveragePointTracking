@@ -21,6 +21,8 @@ OscP5 oscP5;
 NetAddress myBroadcastLocation; 
 
 float minW, maxW, minH, maxH;
+float minKW, maxKW, minKH, maxKH;
+
 
 import controlP5.*;
 
@@ -28,6 +30,8 @@ ControlP5 cp5;
 
 Range rangeW;
 Range rangeH;
+Range rangeKW;
+Range rangeKH;
 
 void setup() {
   size(640, 520);
@@ -37,13 +41,25 @@ void setup() {
                .setPosition(20,20)
                .setSize(200,20)
                .setRange(0,width)
-               .setRangeValues(65,593)
+               .setRangeValues(96,565)
                ;
   rangeH = cp5.addRange("rangeH")
                .setPosition(20,40)
                .setSize(200,20)
                .setRange(0,width)
-               .setRangeValues(96,440)
+               .setRangeValues(138,376)
+               ;
+  rangeKW = cp5.addRange("rangeKW")
+               .setPosition(20,80)
+               .setSize(200,20)
+               .setRange(0,width)
+               .setRangeValues(60,590)
+               ;
+  rangeKH = cp5.addRange("rangeKH")
+               .setPosition(20,100)
+               .setSize(200,20)
+               .setRange(0,width)
+               .setRangeValues(46,398)
                ;
   
   kinect = new Kinect(this);
@@ -51,6 +67,8 @@ void setup() {
   
   oscP5 = new OscP5(this,12000);
   myBroadcastLocation = new NetAddress("127.0.0.1",32000);
+  
+  frameRate(30);
 }
 
 void draw() {
@@ -76,10 +94,17 @@ void draw() {
   fill(0, 255, 0, 40);
   rect(minW, minH, maxW - minW, maxH - minH);
   
+  stroke(0, 0, 255);
+  noFill();
+  rect(minKW, minKH, maxKW - minKW, maxKH - minKH);
+  
   OscMessage myOscMessage = new OscMessage("/kinect_pos");
   
+  float valX = map(v2.x, minW, maxW, 0, 1);
+  float valY = map(v2.y, minH, maxH, 0, 1);
+  
   /* add a value (an integer) to the OscMessage */
-  myOscMessage.add(new float[]{v2.x / width, v2.y / height});
+  myOscMessage.add(new float[]{valX, valY});
   
   oscP5.send(myOscMessage, myBroadcastLocation);
 
@@ -98,6 +123,14 @@ void controlEvent(ControlEvent theControlEvent) {
   if(theControlEvent.isFrom("rangeH")) {
     minH = int(theControlEvent.getController().getArrayValue(0));
     maxH = int(theControlEvent.getController().getArrayValue(1));
+  }
+  if(theControlEvent.isFrom("rangeKW")) {
+    minKW = int(theControlEvent.getController().getArrayValue(0));
+    maxKW = int(theControlEvent.getController().getArrayValue(1));
+  }
+  if(theControlEvent.isFrom("rangeKH")) {
+    minKH = int(theControlEvent.getController().getArrayValue(0));
+    maxKH = int(theControlEvent.getController().getArrayValue(1));
   }
 }
 
